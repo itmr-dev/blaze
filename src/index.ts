@@ -62,7 +62,8 @@ function updateServices(image: string): Promise<void> {
                   if (
                     service.deploy?.labels?.find((label: string): boolean =>
                       label.startsWith('ghcrhook.update'),
-                    )
+                    ) &&
+                    service.image === image
                   ) {
                     console.log(service.image);
                     updateService = true;
