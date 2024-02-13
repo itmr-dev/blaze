@@ -18,6 +18,7 @@ if (!process.env.PORTAINER_URL) {
 if (!process.env.PORTAINER_TOKEN) {
   throw new Error('PORTAINER_TOKEN not set');
 }
+axios.defaults.headers.common['X-API-Key'] = process.env.PORTAINER_TOKEN;
 
 if (!process.env.PORTAINER_INSECURE) {
   axios.defaults.httpsAgent = new https.Agent({
@@ -28,82 +29,70 @@ if (!process.env.PORTAINER_INSECURE) {
 const app: Application = express();
 app.use(express.json());
 
-function updateServices(image: string): Promise<void> {
-  return new Promise<void>(
-    (resolve: (result: void) => void, reject: (error: Error) => void): void => {
+function getStacks(): Promise<Record<string, unknown>> {
+  return new Promise<Record<string, unknown>>(
+    (
+      resolve: (result: Record<string, unknown>) => void,
+      reject: (error: Error) => void,
+    ): void => {
       axios
-        .get(`${process.env.PORTAINER_URL}/api/stacks`, {
-          headers: {
-            'X-API-Key': `${process.env.PORTAINER_TOKEN}`,
-          },
-        })
+        .get(`${process.env.PORTAINER_URL}/api/stacks`)
         .then((stacksRequest: any): void => {
           if (!stacksRequest.data || !stacksRequest.data.length) {
             reject(new Error('NO_STACKS_FOUND'));
             return;
           }
-          console.log(stacksRequest.data.map((stack: any): string => stack.Id));
-          stacksRequest.data.forEach((stack: any): void => {
-            axios
-              .get(`${process.env.PORTAINER_URL}/api/stacks/${stack.Id}/file`, {
-                headers: {
-                  'X-API-Key': `${process.env.PORTAINER_TOKEN}`,
-                },
-              })
-              .then(async (composeRequest: any): Promise<void> => {
-                const compose: any = parse(
-                  composeRequest.data.StackFileContent,
-                );
-                let updateService: boolean = false;
-                // eslint-disable-next-line no-restricted-syntax
-                for await (const service of Object.values(
-                  compose.services,
-                ) as any[]) {
-                  if (
-                    service.deploy?.labels?.find((label: string): boolean =>
-                      label.startsWith('ghcrhook.update'),
-                    ) &&
-                    service.image === image
-                  ) {
-                    console.log(service.image);
-                    updateService = true;
-                  }
-                }
-                if (!updateService) {
-                  return;
-                }
-                console.log(
-                  `updating stack ${stack.Name} (${stack.Id}) with image ${image}`,
-                );
-                axios
-                  .put(
-                    `${process.env.PORTAINER_URL}/api/stacks/${stack.Id}?endpointId=${stack.EndpointId}`,
-                    {
-                      stackFileContent: composeRequest.data.StackFileContent,
-                      env: stack.Env,
-                      prune: true,
-                      pullImage: true,
-                    },
-                    {
-                      headers: {
-                        'X-API-Key': `${process.env.PORTAINER_TOKEN}`,
-                      },
-                    },
-                  )
-                  .then((response: any): void => {
-                    resolve(response);
-                    // TODO: fix that multiple services can be updated at the same time
-                  })
-                  .catch((error: any): void => {
-                    reject(error);
-                  });
-              })
-              .catch((error: any): void => {
-                reject(error);
-              });
-          });
+          resolve(stacksRequest.data);
         })
         .catch((error: Error): void => {
+          reject(error);
+        });
+    },
+  );
+}
+
+function getStackFile(id: string): Promise<string> {
+  return new Promise<string>(
+    (
+      resolve: (result: string) => void,
+      reject: (error: Error) => void,
+    ): void => {
+      axios
+        .get(`${process.env.PORTAINER_URL}/api/stacks/${id}/file`)
+        .then((stackFileRequest: any): void => {
+          if (
+            !stackFileRequest.data ||
+            !stackFileRequest.data.StackFileContent
+          ) {
+            reject(new Error('NO_STACK_FILE_FOUND'));
+            return;
+          }
+          resolve(stackFileRequest.data.StackFileContent);
+        })
+        .catch((error: Error): void => {
+          reject(error);
+        });
+    },
+  );
+}
+
+function updateStack(stackUpdate: Record<string, any>): Promise<void> {
+  return new Promise<void>(
+    (resolve: (result: void) => void, reject: (error: Error) => void): void => {
+      axios
+        .put(
+          `${process.env.PORTAINER_URL}/api/stacks/${stackUpdate.stack.Id}?endpointId=${stackUpdate.stack.EndpointId}`,
+          {
+            stackFileContent: stackUpdate.compose,
+            env: stackUpdate.stack.Env,
+            prune: true,
+            pullImage: true,
+          },
+        )
+        .then((response: any): void => {
+          resolve(response);
+        })
+        .catch((error: any): void => {
           reject(error);
         });
     },
@@ -131,15 +120,57 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  updateServices(reqPackageUrl)
-    .then((): void => {
-      res.status(200).send('OK');
-      console.log(`done handling webhook for package ${reqPackageUrl}`);
-    })
-    .catch((error: Error): void => {
-      res.status(500).send('ERROR');
-      console.error(error);
-    });
+  const stacks: Record<string, unknown> = await getStacks();
+  const updatingStacks: Record<string, unknown>[] = [];
+
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const stack of Object.values(stacks) as any[]) {
+    const stackFile: string = await getStackFile(stack.Id);
+    console.log(stackFile);
+    const parsedStackFile: any = parse(stackFile);
+    let foundService: boolean = false;
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const service of Object.values(
+      parsedStackFile.services,
+    ) as any[]) {
+      if (
+        service.deploy?.labels?.find((label: string): boolean =>
+          label.startsWith('ghcrhook.update'),
+        ) &&
+        service.image === reqPackageUrl
+      ) {
+        console.log(`found service in stack ${stack.Name} (${stack.Id})`);
+        foundService = true;
+      }
+    }
+    if (foundService) {
+      updatingStacks.push({
+        stack,
+        compose: stackFile,
+      });
+    }
+  }
+
+  if (!updatingStacks.length) {
+    res.status(400).send('NO_SERVICES_FOUND');
+    console.log('ignoring webhook, no services found');
+    return;
+  }
+
+  console.log(`updating ${updatingStacks.length} stacks`);
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const stackUpdate of updatingStacks) {
+    await updateStack(stackUpdate);
+  }
+
+  console.log(
+    `done handling webhook for package ${reqPackageUrl} - updated ${updatingStacks.length} stacks`,
+  );
+  res
+    .status(200)
+    .send(
+      `done handling webhook for package ${reqPackageUrl} - updated ${updatingStacks.length} stacks`,
+    );
 });
 
 app.listen(process.env.PORT || 80, (): void => {
