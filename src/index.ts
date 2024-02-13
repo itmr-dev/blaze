@@ -151,8 +151,10 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
   }
 
   if (!updatingStacks.length) {
-    res.status(400).send('NO_SERVICES_FOUND');
-    console.log('ignoring webhook, no services found');
+    res.status(400).send('NO_SERVICE_FOUND_FOR_PACKAGE_URL');
+    console.log(
+      `invalid webhook. no service found for package ${reqPackageUrl}`,
+    );
     return;
   }
 
