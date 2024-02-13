@@ -1,0 +1,44 @@
+{
+  "env": {
+    "node": true,
+  },
+  "extends": ["airbnb-base", "airbnb-typescript/base"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "ecmaVersion": 12,
+    "sourceType": "module",
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "linebreak-style": ["error", "unix"],
+    "consistent-return": ["error"],
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "import/extensions": "off",
+    "@typescript-eslint/explicit-function-return-type": [
+      "error",
+      {
+        "allowExpressions": false,
+        "allowTypedFunctionExpressions": false,
+        "allowHigherOrderFunctions": false,
+        "allowConciseArrowFunctionExpressionsStartingWithVoid": false,
+      },
+    ],
+    "@typescript-eslint/typedef": [
+      "error",
+      {
+        "arrayDestructuring": true,
+        "arrowParameter": true,
+        "memberVariableDeclaration": true,
+        "objectDestructuring": true,
+        "parameter": true,
+        "propertyDeclaration": true,
+        "variableDeclaration": true,
+      },
+    ],
+    "import/named": "off",
+    "implicit-arrow-linebreak": "off",
+    "function-paren-newline": "off",
+  },
+}
