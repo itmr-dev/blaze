@@ -29,6 +29,8 @@ if (!process.env.PORTAINER_INSECURE) {
 const app: Application = express();
 app.use(express.json());
 
+let hookCount: number = 0;
+
 function getStacks(): Promise<Record<string, unknown>> {
   return new Promise<Record<string, unknown>>(
     (
@@ -100,23 +102,26 @@ function updateStack(stackUpdate: Record<string, any>): Promise<void> {
 }
 
 app.post('/', async (req: Request, res: Response): Promise<void> => {
-  console.log(`received webhook with action ${req.body.action}`);
+  hookCount += 1;
+  const hookId: number = hookCount;
+
+  console.log(`[#${hookId}] received webhook with action ${req.body.action}`);
   if (req.body.action !== 'published') {
     res.status(400).send('IGNORING_INVALID_ACTION');
-    console.log(`ignoring invalid action ${req.body.action}`);
+    console.log(`[#${hookId}] ignoring invalid action ${req.body.action}`);
     return;
   }
   const reqPackageUrl: string = req.body.package.package_version.package_url;
   if (!reqPackageUrl) {
     res.status(400).send('INVALID_PAYLOAD_MISSING_PACKAGE_URL');
-    console.log('ignoring invalid payload, missing package_url');
+    console.log(`[#${hookId}] ignoring invalid payload, missing package_url`);
     return;
   }
   const hmac: Hmac = createHmac('sha256', process.env.SECRET as string);
   const signature: string = `sha256=${hmac.update(JSON.stringify(req.body)).digest('hex')}`;
   if (req.headers['x-hub-signature-256'] !== signature) {
     res.status(400).send('INVALID_SIGNATURE');
-    console.log('ignoring invalid signature');
+    console.log(`[#${hookId}] ignoring invalid signature`);
     return;
   }
 
@@ -138,7 +143,9 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
         ) &&
         service.image === reqPackageUrl
       ) {
-        console.log(`found service in stack ${stack.Name} (${stack.Id})`);
+        console.log(
+          `[#${hookId}] found service in stack ${stack.Name} (${stack.Id})`,
+        );
         foundService = true;
       }
     }
@@ -153,19 +160,19 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
   if (!updatingStacks.length) {
     res.status(400).send('NO_SERVICE_FOUND_FOR_PACKAGE_URL');
     console.log(
-      `invalid webhook. no service found for package ${reqPackageUrl}`,
+      `[#${hookId}] invalid webhook. no service found for package ${reqPackageUrl}`,
     );
     return;
   }
 
-  console.log(`updating ${updatingStacks.length} stacks`);
+  console.log(`[#${hookId}] updating ${updatingStacks.length} stacks`);
   // eslint-disable-next-line no-restricted-syntax
   for await (const stackUpdate of updatingStacks) {
     await updateStack(stackUpdate);
   }
 
   console.log(
-    `done handling webhook for package ${reqPackageUrl} - updated ${updatingStacks.length} stacks`,
+    `[#${hookId}] done handling webhook for package ${reqPackageUrl} - updated ${updatingStacks.length} stacks`,
   );
   res
     .status(200)
