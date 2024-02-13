@@ -126,7 +126,6 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
   // eslint-disable-next-line no-restricted-syntax
   for await (const stack of Object.values(stacks) as any[]) {
     const stackFile: string = await getStackFile(stack.Id);
-    console.log(stackFile);
     const parsedStackFile: any = parse(stackFile);
     let foundService: boolean = false;
     // eslint-disable-next-line no-restricted-syntax
