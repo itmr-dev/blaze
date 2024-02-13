@@ -1,7 +1,7 @@
 {
-  "name": "swarm-hook",
+  "name": "blaze",
   "version": "1.0.0",
-  "description": "small rest api service to receive ghcr event hooks to update services running in a dockerized portainer instance",
+  "description": "blazing fast ci/cd. small rest api service to receive ghcr event hooks to update services running in a dockerized portainer instance",
   "main": "index.js",
   "scripts": {
     "start": "node build/index.js",

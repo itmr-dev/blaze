@@ -139,7 +139,7 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
     ) as any[]) {
       if (
         service.deploy?.labels?.find((label: string): boolean =>
-          label.startsWith('ghcrhook.update'),
+          label.startsWith('blaze.update'),
         ) &&
         service.image === reqPackageUrl
       ) {
