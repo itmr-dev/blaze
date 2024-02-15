@@ -1,4 +1,4 @@
-<p align="center"><a href="https://craftycram.net" target="_blank" rel="noopener noreferrer"><img width="100" src="assets/blaze.png" alt="Let's Hassel Logo"></a></p>
+<p align="center"><a href="#" target="_blank" rel="noopener noreferrer"><img width="100" src="assets/blaze.png" alt="blaze logo"></a></p>
 
 <h1 align="center">Blaze</h1>
 
