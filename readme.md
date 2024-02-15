@@ -1,4 +1,12 @@
-# Blaze
+<p align="center"><a href="https://craftycram.net" target="_blank" rel="noopener noreferrer"><img width="100" src="assets/blaze.png" alt="Let's Hassel Logo"></a></p>
+
+<h1 align="center">Blaze</h1>
+
+<p align="center">
+<a href="https://github.com/itmr-dev/blaze" title="Go to GitHub repo"><img src="https://img.shields.io/static/v1?label=itmr-dev&amp;message=blaze&amp;color=blue&amp;logo=github" alt="itmr-dev - blaze"></a>
+<a href="https://github.com/itmr-dev/blaze/actions?query=workflow:&quot;prod+ci&quot;"><img src="https://github.com/itmr-dev/blaze/workflows/prod%20ci/badge.svg" alt="prod ci"></a>
+<a href="https://github.com/itmr-dev/blaze/issues"><img src="https://img.shields.io/github/issues/itmr-dev/blaze" alt="issues - blaze"></a>
+</p>
 
 Blaze is a service designed to automatically update Docker Swarm services based on GitHub package releases. This document explains how to deploy and configure Blaze using Docker Compose.
 
