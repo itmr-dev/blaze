@@ -101,6 +101,11 @@ function updateStack(stackUpdate: Record<string, any>): Promise<void> {
   );
 }
 
+// adding a health check endpoint
+app.get('/health', (req: Request, res: Response): void => {
+  res.status(200).send('OK');
+});
+
 app.post('/', async (req: Request, res: Response): Promise<void> => {
   hookCount += 1;
   const hookId: number = hookCount;
