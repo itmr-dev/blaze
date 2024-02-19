@@ -107,7 +107,7 @@ function updateStack(stackUpdate: Record<string, any>): Promise<void> {
 }
 
 // adding a health check endpoint
-app.get('/health', (req: Request, res: Response): void => {
+app.get('/health', (_req: Request, res: Response): void => {
   res.status(200).send('OK');
 });
 
