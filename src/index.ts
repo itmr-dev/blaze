@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Hmac, createHmac } from 'crypto';
 import dotenv from 'dotenv';
 import express from 'express';
+import cors from 'cors';
 import { parse } from 'yaml';
 import https from 'https';
 import type { Application, Request, Response } from 'express';
@@ -29,6 +30,7 @@ if (!process.env.PORTAINER_INSECURE) {
 }
 
 const app: Application = express();
+app.use(cors());
 app.use(express.json());
 app.disable('x-powered-by');
 app.use((_req: Request, res: Response, next: () => void): void => {
