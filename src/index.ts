@@ -28,6 +28,11 @@ if (!process.env.PORTAINER_INSECURE) {
 
 const app: Application = express();
 app.use(express.json());
+app.disable('x-powered-by');
+app.use((_req: Request, res: Response, next: () => void): void => {
+  res.setHeader('X-Powered-By', 'Blaze');
+  next();
+});
 
 let hookCount: number = 0;
 
