@@ -207,9 +207,11 @@ app.get('/', (_req: Request, res: Response): void => {
   });
 });
 
-app.use((_req: Request, res: Response): void => {
+app.use((req: Request, res: Response): void => {
   res.status(400).json({
     msg: 'Hi this is Blaze. Ready to receive webhooks.',
+    path: req.path,
+    method: req.method,
     error: 'page not found',
   });
 });
