@@ -9,7 +9,6 @@ import https from 'https';
 import type { Application, Request, Response } from 'express';
 import favicon from 'serve-favicon';
 import path from 'path';
-import { expressCspHeader, SELF } from 'express-csp-header';
 
 dotenv.config();
 
@@ -38,14 +37,6 @@ app.use((_req: Request, res: Response, next: () => void): void => {
   res.setHeader('X-Powered-By', 'Blaze');
   next();
 });
-app.use(
-  expressCspHeader({
-    directives: {
-      'default-src': [SELF],
-      'img-src': [SELF],
-    },
-  }),
-);
 app.use(favicon(path.join(__dirname, '..', 'assets', 'favicon.ico')));
 
 let hookCount: number = 0;

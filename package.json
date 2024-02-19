@@ -1,6 +1,6 @@
 {
   "name": "blaze",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "blazing fast ci/cd. small rest api service to receive ghcr event hooks to update services running in a dockerized portainer instance",
   "main": "index.js",
   "scripts": {
@@ -31,7 +31,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.3",
     "express": "^4.18.2",
-    "express-csp-header": "^5.2.1",
     "serve-favicon": "^2.5.0",
     "yaml": "^2.3.4"
   }
