@@ -186,6 +186,24 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
     );
 });
 
+app.get('/', (_req: Request, res: Response): void => {
+  res.status(200).json({
+    msg: 'Hi this is Blaze. Ready to receive webhooks. Find out more about Blaze on GitHub.',
+    url: 'https://github.com/itmr-dev/blaze',
+    time: new Date().toISOString(),
+    uptime: process.uptime(),
+    logo: 'https://raw.githubusercontent.com/itmr-dev/blaze/main/assets/blaze.png',
+    version: '2.0.1',
+  });
+});
+
+app.use((_req: Request, res: Response): void => {
+  res.status(400).json({
+    msg: 'Hi this is Blaze. Ready to receive webhooks.',
+    error: 'page not found',
+  });
+});
+
 app.listen(process.env.PORT || 80, (): void => {
   console.log(`ready to receive webhooks on port ${process.env.PORT || 80}`);
 });
