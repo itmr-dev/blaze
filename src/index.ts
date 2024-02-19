@@ -6,6 +6,8 @@ import express from 'express';
 import { parse } from 'yaml';
 import https from 'https';
 import type { Application, Request, Response } from 'express';
+import favicon from 'serve-favicon';
+import path from 'path';
 
 dotenv.config();
 
@@ -33,6 +35,7 @@ app.use((_req: Request, res: Response, next: () => void): void => {
   res.setHeader('X-Powered-By', 'Blaze');
   next();
 });
+app.use(favicon(path.join(__dirname, '..', 'assets', 'favicon.ico')));
 
 let hookCount: number = 0;
 
@@ -196,9 +199,9 @@ app.get('/', (_req: Request, res: Response): void => {
     msg: 'Hi this is Blaze. Ready to receive webhooks. Find out more about Blaze on GitHub.',
     url: 'https://github.com/itmr-dev/blaze',
     time: new Date().toISOString(),
-    uptime: process.uptime(),
+    uptime: Math.floor(process.uptime()),
     logo: 'https://raw.githubusercontent.com/itmr-dev/blaze/main/assets/blaze.png',
-    version: '2.0.1',
+    version: process.env.npm_package_version,
   });
 });
 
