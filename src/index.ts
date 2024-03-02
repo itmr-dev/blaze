@@ -153,9 +153,12 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
       parsedStackFile.services,
     ) as any[]) {
       if (
-        service.deploy?.labels?.find((label: string): boolean =>
+        (service.deploy?.labels?.find((label: string): boolean =>
           label.startsWith('blaze.update'),
-        ) &&
+        ) ||
+          service.labels?.find((label: string): boolean =>
+            label.startsWith('blaze.update'),
+          )) &&
         service.image === reqPackageUrl
       ) {
         console.log(
