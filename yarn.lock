@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
   integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
+"@cityssm/ntfy-publish@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@cityssm/ntfy-publish/-/ntfy-publish-1.0.0.tgz#3a2b85483656a7f58eb7bbf975d3aa4b5467b24a"
+  integrity sha512-JfoJMFbut7SQzXClzJfunscqpIHJrsXguR3vBceVL7NNnASraTmfn0j8TqX5Ef0IH/OpAXkGKZkESae5vWSt7Q==
+
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz#00629c35a688e05a88b1cda684fb9d5e73f000a1"
