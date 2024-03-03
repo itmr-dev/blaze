@@ -9,6 +9,7 @@ import https from 'https';
 import type { Application, Request, Response } from 'express';
 import favicon from 'serve-favicon';
 import path from 'path';
+import ntfyPublish, { NtfyMessagePriority } from '@cityssm/ntfy-publish';
 
 dotenv.config();
 
@@ -111,6 +112,33 @@ function updateStack(stackUpdate: Record<string, any>): Promise<void> {
   );
 }
 
+function sendNTFYNotification(
+  title: string,
+  message: string,
+  topic: string,
+  priority?: NtfyMessagePriority,
+): Promise<void> {
+  return new Promise<void>(
+    (resolve: (result: void) => void, reject: (error: Error) => void): void => {
+      ntfyPublish({
+        title,
+        message,
+        server: process.env.NTFY_SERVER || 'https://ntfy.itmr.dev',
+        iconURL:
+          'https://raw.githubusercontent.com/itmr-dev/blaze/main/assets/blaze.png',
+        topic: `blaze.${topic}`,
+        priority,
+      })
+        .then((): void => {
+          resolve();
+        })
+        .catch((error: Error): void => {
+          reject(error);
+        });
+    },
+  );
+}
+
 // adding a health check endpoint
 app.get('/health', (_req: Request, res: Response): void => {
   res.status(200).send('OK');
@@ -191,6 +219,13 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
 
   console.log(
     `[#${hookId}] done handling webhook for package ${reqPackageUrl} - updated ${updatingStacks.length} stacks`,
+  );
+
+  await sendNTFYNotification(
+    'Blaze',
+    `Updated ${updatingStacks.length} stacks for package ${reqPackageUrl}`,
+    reqPackageUrl,
+    'default',
   );
   res
     .status(200)
