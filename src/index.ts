@@ -48,7 +48,7 @@ function getStacks(): Promise<Record<string, unknown>> {
       reject: (error: Error) => void,
     ): void => {
       axios
-        .get(`${process.env.PORTAINER_URL}/api/stacks`)
+        .get(new URL('/api/stacks', process.env.PORTAINER_URL).href)
         .then((stacksRequest: any): void => {
           if (!stacksRequest.data || !stacksRequest.data.length) {
             reject(new Error('NO_STACKS_FOUND'));
@@ -70,7 +70,7 @@ function getStackFile(id: string): Promise<string> {
       reject: (error: Error) => void,
     ): void => {
       axios
-        .get(`${process.env.PORTAINER_URL}/api/stacks/${id}/file`)
+        .get(new URL(`/api/stacks/${id}/file`, process.env.PORTAINER_URL).href)
         .then((stackFileRequest: any): void => {
           if (
             !stackFileRequest.data ||
@@ -93,7 +93,10 @@ function updateStack(stackUpdate: Record<string, any>): Promise<void> {
     (resolve: (result: void) => void, reject: (error: Error) => void): void => {
       axios
         .put(
-          `${process.env.PORTAINER_URL}/api/stacks/${stackUpdate.stack.Id}?endpointId=${stackUpdate.stack.EndpointId}`,
+          new URL(
+            `/api/stacks/${stackUpdate.stack.Id}?endpointId=${stackUpdate.stack.EndpointId}`,
+            process.env.PORTAINER_URL,
+          ).href,
           {
             stackFileContent: stackUpdate.compose,
             env: stackUpdate.stack.Env,
