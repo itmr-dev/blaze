@@ -1,6 +1,6 @@
 {
   "name": "blaze",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "blazing fast ci/cd. small rest api service to receive ghcr event hooks to update services running in a dockerized portainer instance",
   "main": "index.js",
   "scripts": {

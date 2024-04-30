@@ -39,7 +39,7 @@ jobs:
         with:
           push: ${{ startsWith(github.ref, 'refs/tags/v') }}
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/${{ github.repository }}:latest
-            ${{ secrets.DOCKER_USERNAME }}/${{ github.repository }}:${{ github.ref_name }}
-            ${{ secrets.DOCKER_USERNAME }}/${{ github.repository }}:run-${{ github.run_id }}-${{ github.run_attempt }}
-            ${{ secrets.DOCKER_USERNAME }}/${{ github.repository }}:sha-${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/blaze:latest
+            ${{ secrets.DOCKER_USERNAME }}/blaze:${{ github.ref_name }}
+            ${{ secrets.DOCKER_USERNAME }}/blaze:run-${{ github.run_id }}-${{ github.run_attempt }}
+            ${{ secrets.DOCKER_USERNAME }}/blaze:sha-${{ github.sha }}
