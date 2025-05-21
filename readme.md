@@ -42,7 +42,7 @@ Before setting up Blaze, ensure you have the following:
    ```yaml
    version: '3.7'
    services:
-     hooks:
+     blaze:
        image: 'ghcr.io/itmr-dev/blaze:latest'
        deploy:
          replicas: 1
