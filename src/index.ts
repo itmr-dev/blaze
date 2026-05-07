@@ -129,7 +129,9 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
     console.log(`[#${hookId}] ignoring invalid action ${req.body.action}`);
     return;
   }
-  const reqPackageUrl: string = req.body.package.package_version.package_url;
+  const reqPackage: any = req.body.package || req.body.registry_package;
+  const reqPackageUrl: string | undefined =
+    reqPackage?.package_version?.package_url;
   if (!reqPackageUrl) {
     res.status(400).send('INVALID_PAYLOAD_MISSING_PACKAGE_URL');
     console.log(`[#${hookId}] ignoring invalid payload, missing package_url`);
