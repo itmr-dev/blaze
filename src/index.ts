@@ -123,6 +123,15 @@ app.post('/', async (req: Request, res: Response): Promise<void> => {
   hookCount += 1;
   const hookId: number = hookCount;
 
+  const githubEvent: string | undefined = req.headers['x-github-event'] as
+    | string
+    | undefined;
+  if (githubEvent === 'ping') {
+    res.status(200).send('PONG');
+    console.log(`[#${hookId}] received ping event`);
+    return;
+  }
+
   console.log(`[#${hookId}] received webhook with action ${req.body.action}`);
   if (req.body.action !== 'published') {
     res.status(400).send('IGNORING_INVALID_ACTION');
